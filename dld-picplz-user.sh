@@ -1,4 +1,12 @@
 #!/bin/bash
+# Script for downloading the data of one Picplz.com user.
+#
+# Usage:   dld-picplz-user.sh ${USER_ID}
+#
+# Example user IDs: 1908 (large)
+#                   216385 (smaller)
+#                   454713 (smallest)
+#
 
 VERSION="20120602.01"
 
@@ -11,10 +19,7 @@ then
   DATA_DIR=data
 fi
 
-user_id=1908
-user_id=216385
-user_id=454713
-
+user_id=$1
 user_id_8=$( printf "%08d" ${user_id} )
 
 prefix_dir="$DATA_DIR/${user_id_8:7:1}/${user_id_8:6:2}/${user_id_8:5:3}"
