@@ -48,6 +48,8 @@ picplz_lua_json=$picplz_lua_json \
   --lua-script="picplz-user.lua" \
   --directory-prefix="${user_dir}/files" \
   --force-directories \
+  -e "robots=off" \
+  --page-requisites --span-hosts \
   --warc-file="${user_dir}/${warc_file_base}" \
   --warc-header="operator: Archive Team" \
   --warc-header="picplz-dld-script-version: ${VERSION}" \

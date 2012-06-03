@@ -64,7 +64,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           table.insert(urls, { url="http://api.picplz.com/api/v2/following.json?include_user=1&page_size=100&id="..user["id"] })
 
           -- WEB: add user page
-          table.insert(urls, { url="http://picplz.com/user/"..user["username"].."/" })
+          table.insert(urls, { url="http://picplz.com/user/"..user["username"].."/", link_expect_html=1 })
 
           -- picture pagination
           if user["more_pics"] then
@@ -120,7 +120,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
 
           -- WEB: add picture page
           if pic["url"] then
-            table.insert(urls, { url="http://picplz.com"..pic["url"] })
+            table.insert(urls, { url="http://picplz.com"..pic["url"], link_expect_html=1 })
           end
         end
 
@@ -136,6 +136,19 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   end
 
   return urls
+end
+
+wget.callbacks.download_child_p = function(urlpos, parent, depth, start_url_parsed, iri, verdict)
+  local host = urlpos["url"]["host"]
+  if host == "maps.google.com" or host == "ajax.googleapis.com" then
+    return verdict
+  elseif string.match(host, "picplzthumbs.com") then
+    return verdict
+  elseif string.match(host, "cloudfront.net") then
+    return verdict
+  else
+    return false
+  end
 end
 
 
