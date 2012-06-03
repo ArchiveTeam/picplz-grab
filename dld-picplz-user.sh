@@ -40,6 +40,8 @@ t=$( date -u +'%Y%m%d-%H%M%S' )
 warc_file_base="picplz-$user_id_8-$t"
 picplz_lua_json="$user_dir/picplz-$user_id_8.json"
 
+echo -n "{\"id\":${user_id}}" > "$user_dir/picplz-$user_id_8.json"
+
 picplz_lua_json=$picplz_lua_json \
 ./wget-warc-lua \
   -U "$USER_AGENT" \

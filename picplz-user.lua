@@ -44,6 +44,10 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
             print(" - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"])
           end
 
+          if user["pics"] == nil then
+            user["pics"] = {}
+          end
+
           local n = #(user["pics"])
           if n == 1 then
             print(" - Discovered 1 picture")
@@ -160,10 +164,12 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           -- resurrected page will request URLs that aren't archived: remove
           -- the timestamp parameter and it will work.
           --
-          table.insert(urls, { url="http://picplz.com/api/v1/picfeed_get?last_id="..
-                                   page_context["last_id"]..
-                                   "&user_id="..page_context["user_id"]..
-                                   "&predicate=recent&view_type=list" })
+          if page_context["last_id"] then
+            table.insert(urls, { url="http://picplz.com/api/v1/picfeed_get?last_id="..
+                                     page_context["last_id"]..
+                                     "&user_id="..page_context["user_id"]..
+                                     "&predicate=recent&view_type=list" })
+          end
 
           break
         end
