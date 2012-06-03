@@ -37,12 +37,8 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         -- user details
         local user = value["users"][1]
         if user then
-          -- add picture urls
-          for i, pic in pairs(user["pics"]) do
-            table.insert(urls, { url="http://api.picplz.com/api/v2/pic.json?include_items=1&pic_formats=56s,64s,100s,400r,640r,1024r&id="..pic["id"] })
-          end
-
           -- show to user
+          print(" - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"])
           local n = #(user["pics"])
           if n == 1 then
             print(" - Discovered 1 picture")
@@ -51,6 +47,11 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           end
           n_pictures_done = 0
           n_pictures_total = n_pictures_total + n
+
+          -- add picture urls
+          for i, pic in pairs(user["pics"]) do
+            table.insert(urls, { url="http://api.picplz.com/api/v2/pic.json?include_items=1&pic_formats=56s,64s,100s,400r,640r,1024r&id="..pic["id"] })
+          end
 
           -- add icon url
           local icon = user["icon"]
