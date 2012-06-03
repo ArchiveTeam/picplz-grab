@@ -54,7 +54,6 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           else
             print(" - Discovered "..n.." pictures")
           end
-          n_pictures_done = 0
           n_pictures_total = n_pictures_total + n
 
           -- add picture urls
