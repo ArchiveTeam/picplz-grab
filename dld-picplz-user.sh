@@ -8,7 +8,7 @@
 #                   454713 (smallest)
 #
 
-VERSION="20120602.01"
+VERSION="20120603.01"
 
 # this script needs wget-warc-lua
 
@@ -66,11 +66,11 @@ fi
 
 echo -n " - User ${user_id} done: "
 
-# TODO remove files
-# mv "$user_dir/$warc_file_base.warc.gz" "$prefix_dir/$warc_file_base.warc.gz"
-# rm -rf "$user_dir"
+mv "$user_dir/$warc_file_base.warc.gz" "$prefix_dir/$warc_file_base.warc.gz"
+mv "$user_dir/picplz-$user_id_8.json" "$prefix_dir/picplz-$user_id_8.json"
+rm -rf "$user_dir"
 
-# du -hs "$prefix_dir/$warc_file_base.warc.gz"
+du -hs "$prefix_dir/$warc_file_base.warc.gz"
 
 exit 0
 
