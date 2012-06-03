@@ -24,6 +24,8 @@ local n_pictures_total = 0
 local n_images_done = 0
 local n_images_total = 0
 
+local first_user_json = true
+
 wget.callbacks.get_urls = function(file, url, is_css, iri)
   local urls = {}
 
@@ -38,7 +40,10 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         local user = value["users"][1]
         if user then
           -- show to user
-          print(" - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"])
+          if first_user_json then
+            print(" - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"])
+          end
+
           local n = #(user["pics"])
           if n == 1 then
             print(" - Discovered 1 picture")
@@ -77,11 +82,14 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
 
           -- store user data
           picplz_lua_json = os.getenv("picplz_lua_json")
-          if picplz_lua_json then
+          if picplz_lua_json and first_user_json then
             local fs = io.open(picplz_lua_json, "w")
             fs:write(JSON:encode({ id=user["id"], username=user["username"], display_name=user["display_name"] }))
             fs:close()
+            picplz_lua_json_written = true
           end
+
+          first_user_json = false
         end
 
       elseif (api_section == "followers" or api_section == "following") and value["users"] then
@@ -132,7 +140,47 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     -- show stats
     n_images_done = n_images_done + 1
     if n_images_done % 100 == 0 or n_images_done == n_images_total then
-      print(" - Downloaded "..n_images_done.." of "..n_images_total.." images")
+      print(" - Downloaded "..n_images_done.." of "..n_images_total.." at least images")
+    end
+
+  else
+    local m = string.match(url, "^http://picplz.com/user/([^/]+)/$")
+    if m then
+      -- the user page
+      for line in io.lines(file) do
+        local page_context = string.match(line, "var page_context = ({.+});")
+        if page_context then
+          page_context = JSON:decode(page_context)
+
+          -- generate the first API request for the 'infinite scrolling' page
+          --
+          -- NOTE: the JavaScript functions add a _ parameter with a timestamp
+          -- to the API request. We can't really archive the timestamps, so
+          -- we archive the urls without a timestamp. This does mean that the
+          -- resurrected page will request URLs that aren't archived: remove
+          -- the timestamp parameter and it will work.
+          --
+          table.insert(urls, { url="http://picplz.com/api/v1/picfeed_get?last_id="..
+                                   page_context["last_id"]..
+                                   "&user_id="..page_context["user_id"]..
+                                   "&predicate=recent&view_type=list" })
+
+          break
+        end
+      end
+
+    else
+      m = string.match(url, "^http://picplz.com/api/v1/picfeed_get.*user_id=([0-9]+).*")
+      if m then
+        local d = load_json_file(file)
+        local value = d["value"]
+        if value and value["last_id"] then
+          table.insert(urls, { url="http://picplz.com/api/v1/picfeed_get?last_id="..
+                                   value["last_id"]..
+                                   "&user_id="..m..
+                                   "&predicate=recent&view_type=list" })
+        end
+      end
     end
   end
 
