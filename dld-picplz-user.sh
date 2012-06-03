@@ -34,7 +34,7 @@ fi
 rm -rf "${user_dir}"
 mkdir -p "${user_dir}/files"
 
-echo -n "Downloading user ${user_id}... "
+echo "Downloading user ${user_id}..."
 
 t=$( date -u +'%Y%m%d-%H%M%S' )
 warc_file_base="picplz-$user_id_8-$t"
@@ -44,6 +44,7 @@ picplz_lua_json=$picplz_lua_json \
 ./wget-warc-lua \
   -U "$USER_AGENT" \
   -nv \
+  -o "${user_dir}/wget.log" \
   --lua-script="picplz-user.lua" \
   --directory-prefix="${user_dir}/files" \
   --force-directories \
@@ -53,16 +54,15 @@ picplz_lua_json=$picplz_lua_json \
   --warc-header="picplz-user-id: ${user_id}" \
   "http://api.picplz.com/api/v2/user.json?id=${user_id}&include_detail=1&include_pics=1&pic_page_size=1000"
 
-# TODO log to file
-# -o "${user_dir}/wget.log" \
-
 result=$?
 
 if [ $result -ne 0 ] && [ $result -ne 6 ] && [ $result -ne 8 ]
 then
-  echo "ERROR ($result)."
+  echo " - User ${user_id}: ERROR ($result)."
   exit 1
 fi
+
+echo -n " - User ${user_id} done: "
 
 # TODO remove files
 # mv "$user_dir/$warc_file_base.warc.gz" "$prefix_dir/$warc_file_base.warc.gz"

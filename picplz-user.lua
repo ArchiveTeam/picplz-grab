@@ -18,6 +18,12 @@ load_json_file = function(file)
   return JSON:decode(data)
 end
 
+-- for statistics
+local n_pictures_done = 0
+local n_pictures_total = 0
+local n_images_done = 0
+local n_images_total = 0
+
 wget.callbacks.get_urls = function(file, url, is_css, iri)
   local urls = {}
 
@@ -31,23 +37,26 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         -- user details
         local user = value["users"][1]
         if user then
-          -- picture pagination
-          if user["more_pics"] then
-            local next_url = url
-            next_url = string.gsub(next_url, "&last_pic_id=[0-9]+", "")
-            next_url = next_url.."&last_pic_id="..user["last_pic_id"]
-            table.insert(urls, { url=next_url })
-          end
-
           -- add picture urls
           for i, pic in pairs(user["pics"]) do
             table.insert(urls, { url="http://api.picplz.com/api/v2/pic.json?include_items=1&pic_formats=56s,64s,100s,400r,640r,1024r&id="..pic["id"] })
           end
 
+          -- show to user
+          local n = #(user["pics"])
+          if n == 1 then
+            print(" - Discovered 1 picture")
+          else
+            print(" - Discovered "..n.." pictures")
+          end
+          n_pictures_done = 0
+          n_pictures_total = n_pictures_total + n
+
           -- add icon url
           local icon = user["icon"]
           if icon and icon["url"] then
             table.insert(urls, { url=icon["url"] })
+            n_images_total = n_images_total + 1
           end
 
           -- add followers and following
@@ -56,6 +65,14 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
 
           -- WEB: add user page
           table.insert(urls, { url="http://picplz.com/user/"..user["username"].."/" })
+
+          -- picture pagination
+          if user["more_pics"] then
+            local next_url = url
+            next_url = string.gsub(next_url, "&last_pic_id=[0-9]+", "")
+            next_url = next_url.."&last_pic_id="..user["last_pic_id"]
+            table.insert(urls, { url=next_url })
+          end
 
           -- store user data
           picplz_lua_json = os.getenv("picplz_lua_json")
@@ -69,11 +86,19 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
       elseif (api_section == "followers" or api_section == "following") and value["users"] then
         -- followers or following
 
+        -- show to user
+        local n = value["user_count"]
+        if n == 1 then
+          print(" - Discovered 1 user in "..api_section)
+        else
+          print(" - Discovered "..n.." users in "..api_section)
+        end
+
         -- user pagination
         if value["more"] then
           local next_url = url
           next_url = string.gsub(next_url, "&last_id=[0-9]+", "")
-          next_url = next_url.."&last_id="..user["last_id"]
+          next_url = next_url.."&last_id="..value["last_id"]
           table.insert(urls, { url=next_url })
         end
 
@@ -81,9 +106,16 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         -- picture details
         local pic = value["pics"][1]
         if pic then
+          -- show stats
+          n_pictures_done = n_pictures_done + 1
+          if n_pictures_done % 100 == 0 or n_pictures_done == n_pictures_total then
+            print(" - Downloaded "..n_pictures_done.." of "..n_pictures_total.." picture details")
+          end
+
           -- add image urls
           for i, pic_file in pairs(pic["pic_files"]) do
             table.insert(urls, { url=pic_file["img_url"] })
+            n_images_total = n_images_total + 1
           end
 
           -- WEB: add picture page
@@ -93,6 +125,13 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         end
 
       end
+    end
+
+  elseif string.match(url, "/img/") then
+    -- show stats
+    n_images_done = n_images_done + 1
+    if n_images_done % 100 == 0 or n_images_done == n_images_total then
+      print(" - Downloaded "..n_images_done.." of "..n_images_total.." images")
     end
   end
 
