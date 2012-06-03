@@ -125,7 +125,6 @@ do
         rsync -avz \
               --compress-level=9 \
               --progress \
-              --dry-run \
               ${bwlimit} \
               --recursive \
               --remove-source-files \
