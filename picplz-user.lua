@@ -56,6 +56,14 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
 
           -- WEB: add user page
           table.insert(urls, { url="http://picplz.com/user/"..user["username"].."/" })
+
+          -- store user data
+          picplz_lua_json = os.getenv("picplz_lua_json")
+          if picplz_lua_json then
+            local fs = io.open(picplz_lua_json, "w")
+            fs:write(JSON:encode({ id=user["id"], username=user["username"], display_name=user["display_name"] }))
+            fs:close()
+          end
         end
 
       elseif (api_section == "followers" or api_section == "following") and value["users"] then

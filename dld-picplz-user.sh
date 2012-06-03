@@ -27,18 +27,20 @@ user_dir="$prefix_dir/$user_id_8"
 
 if [ -d "$prefix_dir" ] && [ ! -z "$( find "$prefix_dir/" -maxdepth 1 -type f -name "picplz-$user_id_8-*.warc.gz" )" ]
 then
-  echo "Already downloaded ${user_id_8}"
+  echo "Already downloaded ${user_id}"
   exit 0
 fi
 
 rm -rf "${user_dir}"
 mkdir -p "${user_dir}/files"
 
-echo -n "Downloading user ${user_id_8}... "
+echo -n "Downloading user ${user_id}... "
 
 t=$( date -u +'%Y%m%d-%H%M%S' )
 warc_file_base="picplz-$user_id_8-$t"
+picplz_lua_json="$user_dir/picplz-$user_id_8.json"
 
+picplz_lua_json=$picplz_lua_json \
 ./wget-warc-lua \
   -U "$USER_AGENT" \
   -nv \
