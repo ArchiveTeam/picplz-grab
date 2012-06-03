@@ -41,7 +41,9 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         if user then
           -- show to user
           if first_user_json then
-            print(" - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"])
+            local str = " - User "..user["id"]..", http://picplz.com/user/"..user["username"].."/, "..user["display_name"]
+            str = string.gsub(str, "[^\32-\126]", "")
+            print(str)
           end
 
           if user["pics"] == nil then
