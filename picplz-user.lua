@@ -144,7 +144,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
     -- show stats
     n_images_done = n_images_done + 1
     if n_images_done % 100 == 0 or n_images_done == n_images_total then
-      print(" - Downloaded "..n_images_done.." of "..n_images_total.." at least images")
+      print(" - Downloaded "..n_images_done.." of at least "..n_images_total.." images")
     end
 
   else
