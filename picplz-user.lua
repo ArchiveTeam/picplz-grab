@@ -65,7 +65,6 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
           local icon = user["icon"]
           if icon and icon["url"] then
             table.insert(urls, { url=icon["url"] })
-            n_images_total = n_images_total + 1
           end
 
           -- add followers and following
