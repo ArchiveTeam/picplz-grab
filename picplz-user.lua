@@ -87,7 +87,7 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         -- followers or following
 
         -- show to user
-        local n = value["user_count"]
+        local n = #(value["users"])
         if n == 1 then
           print(" - Discovered 1 user in "..api_section)
         else
