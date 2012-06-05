@@ -63,8 +63,9 @@ while [ ! -f STOP ] || [[ $( ./filemtime-helper.sh STOP ) -le $initial_stop_mtim
 do
   # request a username
   echo -n "Getting next username from tracker..."
-  tracker_no=$(( RANDOM % 3 ))
+  tracker_no=$(( RANDOM % 7 ))
   tracker_host="picplz-${tracker_no}.heroku.com"
+  if [ $tracker_no -gt 2 ] ; then tracker_host="picplz-3.herokuapp.com" ; fi
   response_file=".seesaw.$$.${tracker_host}_response"
   itemname=$( curl -s -d "{\"downloader\":\"${youralias}\"}" -D ${response_file} http://${tracker_host}/request )
 
@@ -148,8 +149,9 @@ do
         while [ $delay -gt 0 ]
         do
           echo "Telling tracker that '${itemname}' is done."
-          tracker_no=$(( RANDOM % 3 ))
+          tracker_no=$(( RANDOM % 7 ))
           tracker_host="picplz-${tracker_no}.heroku.com"
+          if [ $tracker_no -gt 2 ] ; then tracker_host="picplz-3.herokuapp.com" ; fi
           resp=$( curl -s -f -d "$success_str" http://${tracker_host}/done )
           if [[ "$resp" != "OK" ]]
           then
